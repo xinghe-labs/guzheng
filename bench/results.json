@@ -1,0 +1,17 @@
+[
+  {
+    "n": 28,
+    "claim": "扬州大学2026年诚聘专职辅导员公告",
+    "expect": "single",
+    "soft": true,
+    "got": "none",
+    "pass": false,
+    "sources": 0,
+    "relevant": 0,
+    "fetched": 10,
+    "notFetched": 0,
+    "offtopic": 10,
+    "domains": [],
+    "secs": 23.3
+  }
+]

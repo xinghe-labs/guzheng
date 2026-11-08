@@ -1,0 +1,16 @@
+{
+  "name": "guzheng",
+  "version": "1.0.0",
+  "description": "「孤证」— 数一数一句话背后的独立信源",
+  "type": "commonjs",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "easy-websearch": "^1.8.0"
+  }
+}

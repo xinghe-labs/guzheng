@@ -1,0 +1,17 @@
+# 「孤证」— Render 部署（推荐：免费、无需信用卡、免费档支持自定义域名）
+# 前置：把本目录推到 GitHub 仓库，然后在 render.com 里 New → Blueprint，选该仓库即可。
+services:
+  - type: web
+    name: guzheng
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.mjs
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: MAX_CONCURRENT
+        value: "2"        # 免费档 512MB 内存，收敛并发防 OOM
+    # 部署后在 Dashboard → Settings → Custom Domains 绑定你自己的域名，
+    # 按提示在域名 DNS 加一条 CNAME 记录指向 render 给的地址即可。

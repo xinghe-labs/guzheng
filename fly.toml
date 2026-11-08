@@ -1,0 +1,26 @@
+# 「孤证」— Fly.io 配置（备选方案：CLI 本地直接部署，不依赖 GitHub）
+app = "guzheng"
+primary_region = "hkg"
+
+[build]
+
+[env]
+  PORT = "3000"
+  MAX_CONCURRENT = "2"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    path = "/healthz"
+    interval = "30s"
+    timeout = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>孤证 · 3 秒理解测试</title>
+<style>
+  :root{
+    --paper:#F7F4EF; --card:#FFFFFF; --line:#E8E2D8;
+    --ink:#1C1A17; --muted:#6B655C; --faint:#9C968C;
+    --amber:#B4741F; --green:#2F6B4F; --slate:#4A5A72; --gray:#8A857C;
+    --accent:#1C1A17;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+    font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Songti SC","Noto Serif CJK SC","Source Han Serif SC",SimSun,serif}
+  .wrap{max-width:420px;margin:0 auto;padding:22px 18px 40px}
+  section{display:none}
+  section.on{display:block}
+
+  h1{font-size:19px;margin:0 0 6px;font-weight:600;letter-spacing:.5px}
+  .sub{font-size:13px;color:var(--muted);margin:0 0 20px;line-height:1.7}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 16px;margin:0 0 14px}
+  .box h2{font-size:13px;margin:0 0 10px;color:var(--muted);font-weight:500}
+  .box ol{margin:0;padding-left:20px;font-size:13.5px;line-height:1.85;color:var(--ink)}
+  .box ol li::marker{color:var(--faint)}
+  .warn{font-size:12.5px;color:var(--muted);background:#FCFAF6;border:1px dashed var(--line);border-radius:10px;padding:12px 14px;line-height:1.7;margin:0 0 16px}
+  .warn b{color:var(--ink)}
+
+  .pick{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+  .chip{font-size:13px;border:1px solid var(--line);background:var(--card);border-radius:20px;padding:7px 14px;color:var(--muted);cursor:pointer;user-select:none}
+  .chip.sel{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  .btn{background:var(--ink);color:#fff;border:0;border-radius:9px;padding:13px 18px;font:inherit;font-size:15px;font-weight:500;cursor:pointer;width:100%}
+  .btn:active{opacity:.85}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .btn:disabled{opacity:.35}
+
+  /* ── 进度 ── */
+  .bar{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px;font-size:12px;color:var(--faint)}
+  .bar b{color:var(--ink);font-weight:600}
+  .prog{height:2px;background:var(--line);border-radius:2px;margin:0 0 20px;overflow:hidden}
+  .prog i{display:block;height:100%;background:var(--ink);transition:width .25s}
+
+  /* ── 卡片（与 index.html 一致） ── */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 20px 16px}
+  .claim{font-size:17px;line-height:1.6;margin:0;letter-spacing:.2px}
+  .claim:before{content:"「"} .claim:after{content:"」"}
+  .verdict{margin:16px 0 0}
+  .lead{font-size:13.5px;color:var(--muted);line-height:1.5}
+  .lead b{color:var(--ink);font-weight:600}
+  .main{font-size:23px;font-weight:600;line-height:1.35;letter-spacing:.2px;margin-top:3px}
+  .main em{font-style:normal;font-size:34px;letter-spacing:-1px;margin-right:3px;vertical-align:-2px}
+  .v-single .main,.v-single .main em{color:var(--amber)}
+  .v-multi  .main,.v-multi  .main em{color:var(--green)}
+  .v-clash  .main,.v-clash  .main em{color:var(--slate)}
+  .v-none   .main,.v-none   .main em{color:var(--gray)}
+  .dots{display:flex;align-items:center;gap:13px;margin:16px 0 0;min-height:22px;flex-wrap:wrap}
+  .cluster{display:flex;align-items:center}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .dot.stack{margin-left:-5px;opacity:.40}
+  .dot.stack:first-child{margin-left:0;opacity:.9}
+  .dot.solo{opacity:.95}
+  .dot.solo + .dot.solo{margin-left:6px}
+  .d-single .dot{background:var(--amber)} .d-multi .dot{background:var(--green)}
+  .d-clash .dot{background:var(--slate)} .d-none .dot{background:var(--gray)}
+  .bracket{font-size:11.5px;color:var(--faint);line-height:1.4}
+  .bracket b{color:var(--muted);font-weight:600}
+  .sep{width:1px;height:14px;background:var(--line)}
+  .explain{margin:14px 0 0;font-size:13.5px;color:var(--muted);line-height:1.7}
+  .explain b{color:var(--ink);font-weight:600}
+  details{border-top:1px solid var(--line);margin-top:16px;padding-top:2px}
+  details summary{list-style:none;cursor:pointer;font-size:13px;color:var(--muted);padding:11px 0 9px;display:flex;align-items:center;gap:7px}
+  details summary::-webkit-details-marker{display:none}
+  details summary:before{content:"▸";font-size:10px;color:var(--faint)}
+  .src{display:flex;gap:10px;padding:9px 0;border-top:1px solid #F2EEE7;font-size:12.5px;line-height:1.6}
+  .src .dom{color:var(--ink);font-weight:500;min-width:104px;word-break:break-all}
+  .src .say{color:var(--muted);flex:1}
+  .src .tag{font-size:10.5px;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:0 5px;height:17px;line-height:16px;flex:none;align-self:flex-start;margin-top:2px}
+  .src.dup .dom{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--faint)}
+  .note{font-size:12px;color:var(--faint);padding:10px 0 2px;border-top:1px solid #F2EEE7;line-height:1.65}
+
+  /* ── 计时 / 遮罩 ── */
+  #stage{position:relative;min-height:300px}
+  .cd-bar{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px}
+  .cd{font-size:34px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .cd-hint{font-size:12px;color:var(--faint)}
+  .mask{min-height:300px;background:var(--paper);border:1px dashed var(--line);border-radius:14px;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+  .mask .big{font-size:44px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+  .mask .cap{font-size:13px;color:var(--muted);line-height:1.7;max-width:260px}
+  .mask .cap b{color:var(--ink)}
+  .ready{text-align:center;padding:30px 0 6px}
+  .ready .cap{font-size:13.5px;color:var(--muted);line-height:1.8;max-width:280px;margin:0 auto 18px}
+  .ready .cap b{color:var(--ink)}
+  .hide-note{font-size:12px;color:var(--faint);margin-top:8px}
+
+  #ask{margin-top:18px}
+  #ask .q{font-size:15px;font-weight:600;margin:0 0 10px}
+  textarea{width:100%;min-height:88px;border:1px solid var(--line);border-radius:10px;padding:12px 13px;font:inherit;font-size:14px;line-height:1.65;resize:vertical;background:var(--card);color:var(--ink);outline:0}
+  textarea:focus{border-color:#C9C2B5}
+  .row2{display:flex;gap:10px;margin-top:12px}
+  .row2 .btn{flex:1}
+
+  /* ── 结果 ── */
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 16px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-weight:500;color:var(--faint);font-size:11.5px}
+  td.k{white-space:nowrap;color:var(--muted)}
+  pre{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:11.5px;line-height:1.6;overflow:auto;white-space:pre-wrap;word-break:break-all;max-height:280px}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;padding:9px 16px;border-radius:20px;opacity:0;transition:.2s;pointer-events:none}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ══════ 设置 ══════ -->
+  <section id="setup" class="on">
+    <h1>3 秒理解测试</h1>
+    <p class="sub">验证普通人看到结论卡，能不能在 3 秒内说出「其实只有一个来源」。</p>
+
+    <div class="box">
+      <h2>怎么用</h2>
+      <ol>
+        <li>把手机递过去，只说：<b>「看 3 秒」</b></li>
+        <li>3 秒后卡片自动隐藏，屏幕上会出现问题</li>
+        <li><b>让他自己念出来</b>，你把他说的原话一字不差打进去</li>
+        <li>不要提示、不要解释、不要问「是不是这个意思」</li>
+      </ol>
+    </div>
+
+    <div class="warn">
+      <b>原话必须逐字记。</b>改成"差不多是那个意思"就没用了 —— 你记的是他的用词，用词才暴露他理解到了哪一层。
+    </div>
+
+    <div class="box">
+      <h2>测哪几张</h2>
+      <div class="pick" id="pick"></div>
+      <div style="font-size:12.5px;color:var(--faint);line-height:1.6">
+        默认全选。时间紧就只测<b>单源</b>那张 —— 它是产品的全部价值所在。
+      </div>
+    </div>
+
+    <div class="box">
+      <h2>受访者人数</h2>
+      <div class="pick" id="pickN"></div>
+    </div>
+
+    <button class="btn" id="start">开始</button>
+  </section>
+
+  <!-- ══════ 进行中 ══════ -->
+  <section id="run">
+    <div class="bar">
+      <span>第 <b id="pSub">1</b> 位 / <b id="pSubAll">5</b> 位</span>
+      <span>第 <b id="pCard">1</b> 张 / <b id="pCardAll">4</b> 张</span>
+    </div>
+    <div class="prog"><i id="progBar" style="width:0%"></i></div>
+
+    <div id="stage"></div>
+
+    <div id="ask" style="display:none">
+      <p class="q">他刚才说这张卡在讲什么？</p>
+      <textarea id="ans" placeholder="原话，一字不差"></textarea>
+      <div class="row2">
+        <button class="btn ghost" id="skip">跳过</button>
+        <button class="btn" id="save" disabled>保存并继续</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ 结果 ══════ -->
+  <section id="done">
+    <h1>测试结果</h1>
+    <p class="sub">复制下面这段，发给我，我按判据给出结论和改法。</p>
+    <table id="tbl"></table>
+    <pre id="md"></pre>
+    <div class="row2">
+      <button class="btn ghost" id="again">重来</button>
+      <button class="btn" id="copy">复制结果</button>
+    </div>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ───────────────────────────── 卡片数据 ──
+const CARDS = [
+  { key:"single", label:"单源（核心）", html:`
+    <p class="claim serif">喝柠檬水能防癌</p>
+    <div class="verdict v-single">
+      <div class="lead">找到 <b>7 个页面</b>在说这件事</div>
+      <div class="main">其实是 <em>1</em> 个独立来源</div>
+    </div>
+    <div class="dots d-single">
+      <div class="cluster"><i class="dot stack"></i><i class="dot stack"></i><i class="dot stack"></i><i class="dot stack"></i><i class="dot stack"></i><i class="dot stack"></i></div>
+      <span class="bracket"><b>6 个</b>同一篇转载</span><span class="sep"></span>
+      <i class="dot solo"></i><span class="bracket"><b>1 个</b>独立</span>
+    </div>
+    <p class="explain">这 6 个页面正文相似度 <b>96%</b>，发布时间集中在 <b>3 小时内</b>，都没有标注原始出处。</p>
+    <details><summary>查看这 7 个页面</summary>
+      <div class="src"><span class="dom">jiankang-1.com</span><span class="say">原文：柠檬水能防癌</span><span class="tag">原文</span></div>
+      <div class="src dup"><span class="dom">yj-2.net</span><span class="say">全文转载，未标出处</span><span class="tag">转载</span></div>
+      <div class="src dup"><span class="dom">meishi-3.cn</span><span class="say">全文转载</span><span class="tag">转载</span></div>
+    </details>
+    <details><summary>为什么这么判</summary><div class="note">判定「同一来源」的依据：正文 5-gram 相似度 &gt; 90%、发布时间集中、无独立数据或采访。</div></details>
+  `},
+  { key:"multi", label:"多源", html:`
+    <p class="claim serif">长期熬夜会增加心血管疾病风险</p>
+    <div class="verdict v-multi">
+      <div class="lead">找到 <b>9 个页面</b>在说这件事</div>
+      <div class="main">来自 <em>4</em> 个独立来源</div>
+    </div>
+    <div class="dots d-multi">
+      <i class="dot solo"></i><i class="dot solo"></i><i class="dot solo"></i><i class="dot solo"></i>
+      <span class="bracket"><b>4 个</b>互不相同的来源</span>
+    </div>
+    <p class="explain">其中 <b>2 个</b>引用了同一份队列研究，已合并计算。说法方向一致，没找到相反证据。</p>
+    <details><summary>查看这 9 个页面</summary>
+      <div class="src"><span class="dom">who.int</span><span class="say">相关风险因素说明</span><span class="tag">支持</span></div>
+      <div class="src"><span class="dom">pubmed.ncbi.nlm.nih.gov</span><span class="say">队列研究原文</span><span class="tag">支持</span></div>
+    </details>
+  `},
+  { key:"clash", label:"冲突", html:`
+    <p class="claim serif">每个人每天都必须喝满 8 杯水</p>
+    <div class="verdict v-clash">
+      <div class="lead">找到 <b>4 个来源</b>在说这件事</div>
+      <div class="main">分成 <em>2</em> 种相反说法</div>
+    </div>
+    <div class="dots d-clash">
+      <i class="dot solo"></i><i class="dot solo"></i><span class="bracket">说「必须」</span>
+      <span class="sep"></span>
+      <i class="dot solo"></i><i class="dot solo"></i><span class="bracket">说「不必」</span>
+    </div>
+    <p class="explain">两边各有 <b>2 个</b>独立来源，谁也不占多数。</p>
+    <details><summary>查看两种说法</summary>
+      <div class="src"><span class="dom">health-a.cn</span><span class="say">「每天 8 杯水是标准」</span><span class="tag">必须</span></div>
+      <div class="src"><span class="dom">mayoclinic.org</span><span class="say">「需水量因人而异」</span><span class="tag">不必</span></div>
+    </details>
+  `},
+  { key:"none", label:"查不到", html:`
+    <p class="claim serif">某市将从 12 月起实行四天工作制</p>
+    <div class="verdict v-none">
+      <div class="lead">查了 <b>25 个引擎</b></div>
+      <div class="main"><em>0</em> 个可靠来源</div>
+    </div>
+    <div class="dots d-none"><span class="bracket">没有找到任何独立来源在说这件事</span></div>
+    <p class="explain">找到 2 个页面，都<b>打不开</b>；也没有找到任何机构发布的相关文件。</p>
+    <details><summary>查看检索范围</summary>
+      <div class="src"><span class="dom">微博转述</span><span class="say">页面已删除，无法核实</span><span class="tag">抓不到</span></div>
+      <div class="note" style="margin-top:6px"><b>这不是「假」。</b>可能是消息太新、太小众，或只在私域传播。也可能是真的。</div>
+    </details>
+  `},
+];
+
+// ───────────────────────────── 状态 ──
+const S = { n:5, sel:new Set(CARDS.map(c=>c.key)), si:0, ci:0, queue:[], recs:[], timer:null, count:null };
+
+const $ = (id) => document.getElementById(id);
+const show = (id) => document.querySelectorAll("section").forEach(s=>s.classList.toggle("on", s.id===id));
+
+// ───────────────────────────── 设置页 ──
+function buildSetup(){
+  $("pick").innerHTML = CARDS.map(c =>
+    `<span class="chip${S.sel.has(c.key)?" sel":""}" data-k="${c.key}">${c.label}</span>`).join("");
+  $("pick").querySelectorAll(".chip").forEach(el=>{
+    el.onclick = () => {
+      const k = el.dataset.k;
+      if (S.sel.has(k)) { if (S.sel.size===1) return; S.sel.delete(k); el.classList.remove("sel"); }
+      else { S.sel.add(k); el.classList.add("sel"); }
+    };
+  });
+  $("pickN").innerHTML = [3,5,8].map(n =>
+    `<span class="chip${n===S.n?" sel":""}" data-n="${n}">${n} 位</span>`).join("");
+  $("pickN").querySelectorAll(".chip").forEach(el=>{
+    el.onclick = () => {
+      S.n = +el.dataset.n;
+      $("pickN").querySelectorAll(".chip").forEach(x=>x.classList.toggle("sel", x===el));
+    };
+  });
+}
+
+// ───────────────────────────── 流程 ──
+function start(){
+  S.si = 0; S.ci = 0; S.recs = [];
+  S.queue = CARDS.filter(c => S.sel.has(c.key));
+  $("pSubAll").textContent = S.n;
+  $("pCardAll").textContent = S.queue.length;
+  show("run");
+  renderStep();
+}
+
+function renderStep(){
+  const card = S.queue[S.ci];
+  $("pSub").textContent = S.si + 1;
+  $("pCard").textContent = S.ci + 1;
+  const total = S.n * S.queue.length;
+  $("progBar").style.width = (((S.si*S.queue.length)+S.ci)/total*100) + "%";
+
+  $("ask").style.display = "none";
+  $("ans").value = "";
+  $("save").disabled = true;
+
+  // 就绪态：递好手机再点开始，保证 3 秒真正用在看卡上
+  $("stage").innerHTML = `
+    <div class="ready">
+      <div class="cap">把手机递给他，摆好后<br>点下面按钮，卡片会显示 <b>3 秒</b>后自动消失</div>
+      <button class="btn" id="go">开始看 3 秒</button>
+    </div>`;
+  $("go").onclick = () => showCard(card);
+}
+
+function showCard(card){
+  // 卡片真实可见 + 大号倒计时
+  $("stage").innerHTML = `
+    <div class="cd-bar"><span class="cd" id="cd">3</span><span class="cd-hint">看完自动消失</span></div>
+    <div class="card">${card.html}</div>`;
+  const cd = $("cd");
+  let left = 3;
+  clearInterval(S.count);
+  S.count = setInterval(()=>{
+    left--;
+    if (left > 0) { cd.textContent = left; return; }
+    clearInterval(S.count);
+    // 卡片被替换掉，不可能再看到
+    $("stage").innerHTML = `
+      <div class="mask">
+        <div class="big" style="font-size:26px">已隐藏</div>
+        <div class="cap">现在问他：<b>这张卡在说什么？</b><br>让他自己讲，不要提示。</div>
+      </div>`;
+    $("ask").style.display = "block";
+    $("ans").focus();
+  }, 1000);
+}
+
+function save(){
+  const txt = $("ans").value.trim();
+  S.recs.push({ si:S.si, ci:S.ci, key:S.queue[S.ci].key, label:S.queue[S.ci].label, text:txt || "(未作答)" });
+  next();
+}
+function skip(){ S.recs.push({ si:S.si, ci:S.ci, key:S.queue[S.ci].key, label:S.queue[S.ci].label, text:"(跳过)" }); next(); }
+
+function next(){
+  clearInterval(S.count);
+  S.ci++;
+  if (S.ci >= S.queue.length) { S.ci = 0; S.si++; }
+  if (S.si >= S.n) return finish();
+  renderStep();
+}
+
+function finish(){
+  clearInterval(S.count);
+  $("progBar").style.width = "100%";
+  const rows = S.recs.map((r,i)=>[i+1, `第${r.si+1}位`, r.label, r.text]);
+  $("tbl").innerHTML = `<thead><tr><th>#</th><th>受访者</th><th>卡片</th><th>他说了什么</th></tr></thead><tbody>${
+    rows.map(r=>`<tr><td class="k">${r[0]}</td><td class="k">${r[1]}</td><td class="k">${r[2]}</td><td>${esc(r[3])}</td></tr>`).join("")
+  }</tbody>`;
+
+  const md = [
+    `## 孤证 · 3 秒理解测试结果`,
+    ``,
+    `受访者：${S.n} 位　卡片：${S.queue.map(c=>c.label).join(" / ")}`,
+    ``,
+    `| # | 受访者 | 卡片 | 原话 |`,
+    `|---|---|---|---|`,
+    ...rows.map(r=>`| ${r[0]} | ${r[1]} | ${r[2]} | ${String(r[3]).replace(/\|/g,"\\|").replace(/\n/g," ")} |`),
+  ].join("\n");
+  $("md").textContent = md;
+  window.__md = md;
+  show("done");
+}
+
+const esc = (s) => String(s).replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+// ───────────────────────────── 绑定 ──
+$("start").onclick = start;
+$("save").onclick = save;
+$("skip").onclick = skip;
+$("ans").addEventListener("input", e => { $("save").disabled = !e.target.value.trim(); });
+$("again").onclick = () => { S.recs=[]; buildSetup(); show("setup"); };
+$("copy").onclick = async () => {
+  try { await navigator.clipboard.writeText(window.__md || ""); toast("已复制"); }
+  catch { toast("复制失败，请手动选中"); }
+};
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("on"); setTimeout(()=>t.classList.remove("on"),1600); }
+
+buildSetup();
+</script>
+</body>
+</html>

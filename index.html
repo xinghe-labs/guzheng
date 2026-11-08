@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>孤证 · 数一数独立信源</title>
+<meta name="description" content="很多网站在说同一件事——但它们是各自求证，还是在互相搬运？贴进一句话，数一数真正独立的信源。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='10' fill='%23b03a2e'/%3E%3Ctext x='32' y='44' font-size='34' font-family='serif' fill='%23f6f1e7' text-anchor='middle'%3E孤%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#f5f0e6; --paper-2:#efe8d8; --ink:#1d1a15; --ink-2:#4a453b;
+  --ink-3:#8a8272; --seal:#b03a2e; --seal-dark:#8e2d23; --green:#2e6e4e;
+  --grey:#6b675e; --line:#c9bfa9;
+  --serif:"Kaiti SC","STKaiti","KaiTi","Songti SC","SimSun","Noto Serif CJK SC",Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--serif);
+  font-size:16px; line-height:1.75; min-height:100vh;
+}
+/* 宣纸颗粒 */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9; opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.55 0 0 0 0 0.45 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::selection{background:var(--seal); color:var(--paper)}
+
+/* ---------- 左侧竖排品牌栏 ---------- */
+.rail{
+  position:fixed; left:0; top:0; bottom:0; width:118px; z-index:5;
+  border-right:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; padding:34px 0 26px;
+  background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%);
+}
+.rail .brand{
+  writing-mode:vertical-rl; font-size:46px; font-weight:700; letter-spacing:.28em;
+  line-height:1; user-select:none;
+}
+.rail .seal{
+  width:58px; height:58px; margin:26px 0 20px; background:var(--seal); color:var(--paper);
+  display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:700;
+  border-radius:9px; transform:rotate(4deg); box-shadow:2px 3px 0 rgba(29,26,21,.18);
+  user-select:none;
+}
+.rail .motto{
+  writing-mode:vertical-rl; font-size:13px; letter-spacing:.4em; color:var(--ink-3); margin-top:auto;
+}
+.rail .edge{
+  width:3px; flex:0 0 90px; margin-top:18px; background:var(--seal); opacity:.85; border-radius:2px;
+}
+
+main{ margin-left:118px; max-width:860px; padding:0 44px 60px; }
+
+/* ---------- 头部 ---------- */
+.top{display:flex; align-items:center; gap:14px; padding:26px 0 0}
+.top .m-seal{width:40px;height:40px;background:var(--seal);color:var(--paper);display:none;align-items:center;justify-content:center;font-size:22px;border-radius:8px;transform:rotate(4deg)}
+.kicker{
+  display:inline-flex; align-items:center; gap:10px; font-size:14px; letter-spacing:.35em;
+  color:var(--seal); margin:34px 0 14px;
+}
+.kicker::before{content:""; width:34px; height:1px; background:var(--seal)}
+h1{font-size:clamp(30px,4.6vw,44px); font-weight:700; line-height:1.35; letter-spacing:.02em}
+h1 em{font-style:normal; color:var(--seal); text-decoration:underline; text-decoration-thickness:3px; text-underline-offset:8px; text-decoration-color:rgba(176,58,46,.35)}
+.sub{margin-top:18px; color:var(--ink-2); max-width:640px; font-size:16.5px}
+.sub strong{color:var(--ink); border-bottom:2px solid var(--line)}
+
+/* 入场动画 */
+.rise{opacity:0; transform:translateY(14px); animation:rise .7s cubic-bezier(.2,.7,.3,1) forwards}
+.rise:nth-child(2){animation-delay:.08s} .rise:nth-child(3){animation-delay:.16s} .rise:nth-child(4){animation-delay:.24s}
+@keyframes rise{to{opacity:1; transform:none}}
+
+/* ---------- 输入区 ---------- */
+form{margin-top:34px}
+.inputrow{display:flex; gap:14px; align-items:flex-end; border-bottom:2px solid var(--ink); padding-bottom:10px; transition:border-color .2s}
+.inputrow:focus-within{border-color:var(--seal)}
+#claim{
+  flex:1; border:0; background:transparent; outline:0; font-family:var(--serif);
+  font-size:20px; color:var(--ink); caret-color:var(--seal); min-width:0;
+}
+#claim::placeholder{color:#b3ab98}
+#claim:disabled{opacity:.5}
+button.go{
+  flex:0 0 auto; border:0; cursor:pointer; background:var(--seal); color:#f8f3e8;
+  font-family:var(--serif); font-size:17px; font-weight:700; letter-spacing:.3em; text-indent:.3em;
+  padding:11px 26px 12px; border-radius:8px; transition:transform .12s, background .15s, box-shadow .12s;
+  box-shadow:0 3px 0 var(--seal-dark);
+}
+button.go:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 4px 0 var(--seal-dark)}
+button.go:active:not(:disabled){transform:translateY(2px); box-shadow:0 1px 0 var(--seal-dark)}
+button.go:disabled{opacity:.45; cursor:wait}
+.hint{margin-top:10px; font-size:13px; color:var(--ink-3); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.examples{margin-top:16px; display:flex; flex-wrap:wrap; gap:10px}
+.examples span.lbl{font-size:13px; color:var(--ink-3); align-self:center; letter-spacing:.2em}
+.chip{
+  border:1px solid var(--line); background:rgba(255,255,255,.35); color:var(--ink-2);
+  font-family:var(--serif); font-size:13.5px; padding:5px 13px; border-radius:999px; cursor:pointer;
+  transition:all .15s;
+}
+.chip:hover{border-color:var(--ink); color:var(--ink); background:#fff}
+
+/* ---------- 进度 ---------- */
+#progress{margin-top:46px; display:none}
+#progress.on{display:block; opacity:0; animation:rise .4s forwards}
+.steps{display:flex; flex-direction:column; gap:0; border-left:2px solid var(--line); margin-left:6px}
+.step{position:relative; padding:0 0 26px 24px; color:var(--ink-3); font-size:15.5px}
+.step::before{
+  content:""; position:absolute; left:-7px; top:7px; width:12px; height:12px; border-radius:50%;
+  background:var(--paper); border:2px solid var(--line); transition:all .3s;
+}
+.step.doing{color:var(--ink); font-weight:700}
+.step.doing::before{border-color:var(--seal); background:var(--seal); box-shadow:0 0 0 4px rgba(176,58,46,.15); animation:pulse 1.1s infinite}
+.step.done{color:var(--ink-2)}
+.step.done::before{border-color:var(--green); background:var(--green)}
+.step .t{font-size:12.5px; color:var(--ink-3); margin-left:10px; letter-spacing:.05em}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(176,58,46,.08)}}
+.pnote{margin-top:6px; font-size:13px; color:var(--ink-3)}
+.pnote b{color:var(--ink-2); font-family:ui-monospace,Consolas,monospace; font-weight:600}
+
+/* ---------- 结果 ---------- */
+#result{margin-top:46px; display:none}
+#result.on{display:block}
+.verdictbox{
+  position:relative; display:flex; gap:30px; align-items:center; padding:30px 34px;
+  border:1px solid var(--line); background:rgba(255,255,255,.42); overflow:visible;
+}
+.stamp{
+  flex:0 0 auto; width:108px; height:108px; border:3px solid currentColor; border-radius:14px;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:2px;
+  transform:rotate(-4deg); color:var(--seal); background:transparent;
+  animation:stampIn .55s cubic-bezier(.2,1.6,.4,1) both; box-shadow:inset 0 0 0 1.5px currentColor;
+  position:relative;
+}
+.stamp::after{
+  content:""; position:absolute; inset:4px; border:1px solid currentColor; border-radius:9px; opacity:.5;
+}
+.stamp .zh{font-size:34px; font-weight:700; letter-spacing:.12em; text-indent:.12em; line-height:1.2}
+.stamp .en{font-size:11px; letter-spacing:.32em; text-indent:.32em; opacity:.75}
+.stamp.multi{color:var(--green)}
+.stamp.single{color:var(--seal)}
+.stamp.none{color:var(--grey)}
+@keyframes stampIn{
+  0%{opacity:0; transform:rotate(-14deg) scale(2.1); filter:blur(2px)}
+  62%{opacity:1; transform:rotate(-3deg) scale(.94); filter:blur(0)}
+  100%{opacity:1; transform:rotate(-4deg) scale(1)}
+}
+.vtext .vtitle{font-size:26px; font-weight:700}
+.vtext .vdesc{margin-top:8px; color:var(--ink-2); font-size:16px; max-width:560px}
+.vtext .vcave{margin-top:10px; font-size:13.5px; color:var(--ink-3); border-left:3px solid var(--line); padding-left:12px}
+.verdictbox .fade{opacity:0; animation:rise .5s .25s forwards}
+
+.chain{
+  margin:22px 2px 0; font-size:14px; color:var(--ink-2); display:flex; flex-wrap:wrap; gap:6px 0; align-items:baseline;
+}
+.chain b{font-family:ui-monospace,Consolas,monospace; font-size:15px; color:var(--ink)}
+.chain .sep{margin:0 12px; color:var(--line)}
+.chain .hl{color:var(--seal); font-weight:700}
+
+/* 信源卡 */
+.cards{margin-top:26px; display:grid; gap:16px}
+.card{
+  position:relative; border:1px solid var(--line); background:rgba(255,255,255,.45);
+  padding:20px 24px 18px; transition:transform .18s, box-shadow .18s, border-color .18s;
+  opacity:0; animation:rise .5s forwards; animation-delay:calc(.3s + var(--i)*.07s);
+}
+.card:hover{transform:translateX(5px); border-color:var(--ink-3); box-shadow:-4px 4px 0 rgba(29,26,21,.06)}
+.card::before,.card::after{
+  content:""; position:absolute; width:10px; height:10px; border-color:var(--ink-3); border-style:solid;
+}
+.card::before{left:-1px; top:-1px; border-width:2px 0 0 2px}
+.card::after{right:-1px; bottom:-1px; border-width:0 2px 2px 0}
+.card .chead{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+.card .cnum{font-size:13px; letter-spacing:.25em; color:var(--seal); font-weight:700}
+.card .cdom{font-size:13.5px; color:var(--ink-3)}
+.card .cdom b{color:var(--ink-2); font-weight:600}
+.card .ctitle{display:block; margin-top:8px; color:var(--ink); font-size:17.5px; font-weight:700; text-decoration:none; line-height:1.5}
+.card .ctitle:hover{color:var(--seal); text-decoration:underline; text-underline-offset:4px}
+.card .cex{
+  margin-top:10px; font-size:15px; color:var(--ink-2); border-left:3px solid var(--line);
+  padding:2px 0 2px 14px; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden;
+}
+.card .ccopy{margin-top:10px; font-size:13px; color:var(--ink-3)}
+.card .ccopy b{color:var(--ink-2); font-weight:600}
+.noresult{
+  border:1px dashed var(--line); background:rgba(255,255,255,.3); padding:26px; text-align:center;
+  color:var(--ink-2); font-size:15.5px; opacity:0; animation:rise .5s .3s forwards;
+}
+
+/* 透明度报告 */
+details.report{margin-top:26px; border:1px solid var(--line); background:rgba(255,255,255,.32)}
+details.report summary{
+  cursor:pointer; padding:14px 22px; font-size:14.5px; letter-spacing:.15em; color:var(--ink-2);
+  user-select:none; list-style:none; display:flex; align-items:center; gap:10px;
+}
+details.report summary::-webkit-details-marker{display:none}
+details.report summary::before{content:"▸"; color:var(--seal); transition:transform .2s}
+details.report[open] summary::before{transform:rotate(90deg)}
+.report .inner{border-top:1px solid var(--line); padding:16px 22px 20px; font-size:13px; color:var(--ink-2)}
+.rrow{margin:3px 0; font-family:ui-monospace,Consolas,monospace; font-size:12px; color:var(--ink-3); word-break:break-all}
+.rrow .tag{color:var(--seal)}
+.rrow .ok{color:var(--green)}
+.rgroup{margin:10px 0 4px; font-weight:700; color:var(--ink-2); font-family:var(--serif); font-size:13.5px; letter-spacing:.1em}
+
+.again{margin-top:24px; display:flex; gap:14px; align-items:center; font-size:13.5px; color:var(--ink-3)}
+.linkbtn{background:none; border:none; border-bottom:1px solid var(--ink-3); color:var(--ink-2); cursor:pointer; font-family:var(--serif); font-size:13.5px; padding:0 2px}
+.linkbtn:hover{color:var(--seal); border-color:var(--seal)}
+
+/* 错误条 */
+#error{margin-top:40px; display:none; border:1px solid var(--seal); background:rgba(176,58,46,.06); color:var(--seal-dark); padding:16px 22px; font-size:15px}
+#error.on{display:block; animation:rise .35s forwards}
+
+/* ---------- 方法说明 ---------- */
+#method{margin-top:84px; border-top:1px solid var(--line); padding-top:38px}
+#method h2{font-size:22px; letter-spacing:.15em; margin-bottom:20px}
+#method h2::after{content:""; display:block; width:44px; height:3px; background:var(--seal); margin-top:8px}
+.trio{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:22px 0}
+.trio .t{border:1px solid var(--line); padding:16px 18px; background:rgba(255,255,255,.4)}
+.trio .t .tz{font-size:19px; font-weight:700; margin-bottom:6px}
+.trio .t .tz i{font-style:normal; font-size:12px; margin-left:8px; letter-spacing:.2em; opacity:.8}
+.trio .t p{font-size:13.5px; color:var(--ink-2)}
+.trio .t1 .tz{color:var(--green)} .trio .t2 .tz{color:var(--seal)} .trio .t3 .tz{color:var(--grey)}
+.mblock{margin-top:18px; font-size:15px; color:var(--ink-2)}
+.mblock b{color:var(--ink)}
+.mblock+.mblock{margin-top:12px}
+
+footer{
+  margin-top:70px; border-top:1px solid var(--line); padding-top:22px;
+  display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:center;
+  font-size:12.5px; color:var(--ink-3);
+}
+footer a{color:var(--ink-3)} footer a:hover{color:var(--seal)}
+details.apiset{position:relative; font-size:12.5px}
+details.apiset summary{cursor:pointer; list-style:none; color:var(--ink-3); border-bottom:1px dotted var(--ink-3)}
+details.apiset summary::-webkit-details-marker{display:none}
+details.apiset .apibox{position:absolute; right:0; bottom:26px; background:#fffdf8; border:1px solid var(--line); padding:10px; display:flex; gap:8px; box-shadow:0 4px 14px rgba(29,26,21,.12); z-index:20; width:320px}
+details.apiset input{flex:1; border:1px solid var(--line); background:transparent; font-family:ui-monospace,Consolas,monospace; font-size:12px; padding:5px 8px; outline:0}
+details.apiset input:focus{border-color:var(--seal)}
+details.apiset button{border:1px solid var(--seal); background:none; color:var(--seal); font-family:var(--serif); font-size:12px; padding:4px 10px; cursor:pointer}
+details.apiset button:hover{background:var(--seal); color:#fff}
+.df{opacity:.55; font-size:11.5px; letter-spacing:.08em}
+.df:hover{opacity:1}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:900px){
+  .rail{position:static; width:auto; flex-direction:row; border-right:0; border-bottom:1px solid var(--line); padding:14px 20px; gap:16px}
+  .rail .brand{writing-mode:horizontal-tb; font-size:26px; letter-spacing:.2em}
+  .rail .seal{width:34px; height:34px; font-size:18px; margin:0}
+  .rail .motto,.rail .edge{display:none}
+  main{margin-left:0; padding:0 22px 50px}
+  .verdictbox{flex-direction:column; text-align:center; gap:18px}
+  .vtext .vcave{text-align:left}
+  .trio{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important; animation-delay:0ms!important; transition-duration:.01ms!important}
+  .rise,.card,.verdictbox .fade,.noresult{opacity:1}
+}
+</style>
+</head>
+<body>
+
+<aside class="rail">
+  <div class="brand">孤证数源</div>
+  <div class="seal">孤</div>
+  <div class="edge"></div>
+  <div class="motto">数一数 · 独立信源</div>
+</aside>
+
+<main>
+  <div class="top"><div class="m-seal">孤</div></div>
+
+  <section id="hero">
+    <p class="kicker rise">独 立 信 源 核 查</p>
+    <h1 class="rise">十个网站在说同一件事，<br>可能只有<em>一个源头</em>。</h1>
+    <p class="sub rise">热门消息往往被转载、洗稿、改写几十遍——看起来「多方都在说」，其实只有一条来源。把你想核实的一句话贴进来，这里会把重复的内容<strong>合并归簇</strong>，数一数真正<strong>互相独立</strong>的信源。</p>
+
+    <form id="form" class="rise">
+      <div class="inputrow">
+        <input id="claim" type="text" maxlength="200" autocomplete="off" spellcheck="false"
+               placeholder="例：复旦大学2028年将整体迁往苏州办学" aria-label="要核查的说法">
+        <button class="go" id="goBtn" type="submit">数 源</button>
+      </div>
+      <div class="hint">
+        <span>一句话（4–200 字）· 全网检索约需 20–90 秒</span>
+        <span>结论只回答「几个源头」，不判断真假</span>
+      </div>
+      <div class="examples" id="examples">
+        <span class="lbl">试试：</span>
+        <button type="button" class="chip">喝柠檬水能防癌</button>
+        <button type="button" class="chip">网易云音乐2026年并购QQ音乐</button>
+        <button type="button" class="chip">青岛大学2026年成立梦境预测研究中心</button>
+        <button type="button" class="chip">2026年全国硕士研究生招生考试定于2025年12月举行</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="progress" aria-live="polite">
+    <div class="steps">
+      <div class="step" data-step="0">检索全网<span class="t">多个搜索引擎并行</span></div>
+      <div class="step" data-step="1">抓取原文<span class="t">逐页拉取正文</span></div>
+      <div class="step" data-step="2">过滤与聚类<span class="t">剔除不相关 · 合并互相转载</span></div>
+    </div>
+    <p class="pnote">已进行 <b id="elapsed">0</b> 秒 —— 慢是特性不是缺陷：每一页都在真的被抓取和比对</p>
+  </section>
+
+  <div id="error"></div>
+
+  <section id="result"></section>
+
+  <section id="method">
+    <h2>这套东西怎么算</h2>
+    <div class="trio">
+      <div class="t t1"><div class="tz">多源印证<i> MULTI</i></div><p>找到 ≥2 处互相独立的信息源。它们不是在互相搬运——这一点本身就有信息量。</p></div>
+      <div class="t t2"><div class="tz">孤证<i> SINGLE</i></div><p>只有 1 处独立信源。如果全网只有一个人在说，先别急着信。</p></div>
+      <div class="t t3"><div class="tz">查无对证<i> NONE</i></div><p>没找到讲这件事的页面。它可能太新、太小众，或者不存在。</p></div>
+    </div>
+    <p class="mblock"><b>独立源怎么数。</b>所有相关页面按正文做 5-gram 指纹比对，重合度 ≥75% 的页面、以及同一域名下的页面，合并为同一处信源——互相转载、洗稿、通稿不会被重复计数。</p>
+    <p class="mblock"><b>相关页怎么筛。</b>每个候选页面要过句级关键词门、传闻辟谣词典、年份与事件词绑定等多重过滤，「提到实体但没说这件事」的页面不算数。被过滤的页面在结果里可查（透明度报告）。</p>
+    <p class="mblock"><b>边界要说清。</b>孤证不等于谣言——独家报道天然只有一处源；多源也不等于属实——如果源头本身是错的，转载一百遍也还是错的。这里只做一件事：让你看见「独立的声部」到底有几个。中文引擎为主，结果受搜索引擎覆盖面影响。</p>
+  </section>
+
+  <footer>
+    <span>「孤证」——把「很多网站都这么说」拆开看看 · 内核基于开源项目 <a href="https://github.com/xinghe-labs/easy-websearch" target="_blank" rel="noopener">easy-websearch</a></span>
+    <details class="apiset">
+      <summary>后端端点</summary>
+      <div class="apibox">
+        <input id="apiInput" placeholder="https://你的后端（留空 = 同源）">
+        <button id="apiSave" type="button">保存</button>
+      </div>
+    </details>
+    <a class="df" href="https://deerflow.tech" target="_blank" rel="noopener">✦ Deerflow</a>
+  </footer>
+</main>
+
+<script>
+(() => {
+"use strict";
+const $ = (s) => document.querySelector(s);
+const form = $("#form"), input = $("#claim"), btn = $("#goBtn");
+const progress = $("#progress"), resultEl = $("#result"), errorEl = $("#error");
+let checking = false;
+
+// 后端端点：?api= 参数 > localStorage > 同源（静态托管 CF/GH Pages 时填容器后端地址）
+const QP = new URLSearchParams(location.search);
+const API = (QP.get("api") || localStorage.getItem("guzheng_api") || "").replace(/\/$/, "");
+
+// ?result=<id> 回放模式：读取 results/<id>.json（GitHub Actions 异步检查的结果落盘）
+const rid = QP.get("result");
+if (rid) {
+  fetch((API || "") + "/results/" + encodeURIComponent(rid) + ".json")
+    .then((r) => { if (!r.ok) throw new Error("找不到结果 " + rid + "（可能 Actions 还没跑完或 id 不对）"); return r.json(); })
+    .then((d) => { render(d); resultEl.scrollIntoView({ behavior: "smooth" }); })
+    .catch((e) => showError(e.message));
+}
+
+// ---------- 工具（全部用 textContent 构建，页面标题/摘要不可信，杜绝 XSS） ----------
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+const fmtSec = (ms) => (ms / 1000).toFixed(1) + "s";
+const VERDICTS = {
+  multi: { stamp: "多源", en: "MULTI", cls: "multi",
+    title: (n) => `多源印证 —— ${n} 处独立信源`,
+    desc: (n) => `全网能找到 ${n} 处互相独立的信息源。它们不是在互相搬运——这个事实本身，比「谁说得对」更值得先知道。`,
+    cave: "多源 ≠ 绝对属实：如果源头本身错了，转载一百遍也还是错的。" },
+  single: { stamp: "孤证", en: "LONE", cls: "single",
+    title: () => "孤证 —— 只有 1 处独立信源",
+    desc: () => "翻遍检索结果，能站住的独立来源只有一处。如果连第二个人都没说过这件事，先别急着相信它。",
+    cave: "孤证 ≠ 谣言：独家报道天然只有一处源，但它值得你多看一眼出处。" },
+  none: { stamp: "查无", en: "NOT FOUND", cls: "none",
+    title: () => "查无对证 —— 未找到相关来源",
+    desc: () => "检索到的页面里，没有一篇真正在说这件事。它可能太新、太小众，或者根本不存在。",
+    cave: "注意区分「查不到」和「不存在」：搜索引擎没覆盖到的，这里也看不见。" },
+};
+
+// ---------- 示例 ----------
+$("#examples").addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip");
+  if (chip && !checking) { input.value = chip.textContent.trim(); input.focus(); }
+});
+
+// ---------- 进度编排 ----------
+let elapsedTimer = null;
+function startProgress() {
+  progress.classList.add("on");
+  const steps = [...progress.querySelectorAll(".step")];
+  steps.forEach((s) => s.className = "step");
+  steps[0].classList.add("doing");
+  const t0 = Date.now();
+  elapsedTimer = setInterval(() => { $("#elapsed").textContent = Math.round((Date.now() - t0) / 1000); }, 500);
+  // 阶段推进按实测耗时编排：检索 ~5-15s，抓取 ~10-40s，聚类收尾
+  setTimeout(() => { steps[0].classList.replace("doing", "done"); steps[1].classList.add("doing"); }, 6000);
+  setTimeout(() => { steps[1].classList.replace("doing", "done"); steps[2].classList.add("doing"); }, 24000);
+}
+function stopProgress(ok) {
+  clearInterval(elapsedTimer);
+  const steps = [...progress.querySelectorAll(".step")];
+  steps.forEach((s) => s.classList.remove("doing"));
+  if (ok) steps.forEach((s) => s.classList.add("done"));
+  setTimeout(() => progress.classList.remove("on"), ok ? 500 : 0);
+}
+
+// ---------- 渲染结果 ----------
+function render(r) {
+  resultEl.textContent = "";
+  const v = VERDICTS[r.verdict];
+  const n = r.independentSources;
+
+  // 裁决区：印章 + 文案
+  const box = el("div", "verdictbox");
+  const stamp = el("div", "stamp " + v.cls);
+  stamp.append(el("div", "zh", v.stamp), el("div", "en", v.en));
+  const vt = el("div", "vtext");
+  vt.append(
+    el("div", "vtitle fade", v.title(n)),
+    el("div", "vdesc fade", v.desc(n)),
+    el("div", "vcave fade", v.cave),
+  );
+  box.append(stamp, vt);
+  resultEl.append(box);
+
+  // 数据链
+  const chain = el("div", "chain");
+  const seg = (label, val, hl) => { const s = el("span"); s.append(label + " "); const b = el("b", hl ? "hl" : "", String(val)); s.append(b); return s; };
+  chain.append(
+    seg("检索", r.totalResults, false), el("span", "sep", "·"),
+    seg("相关", r.relevant, false), el("span", "sep", "·"),
+    seg("独立信源", n, true), el("span", "sep", "·"),
+    seg("耗时", fmtSec(r.timings.totalMs), false),
+  );
+  if (r.cached) chain.append(el("span", "sep", "·"), el("span", null, "（缓存结果）"));
+  if (rid) chain.append(el("span", "sep", "·"), el("span", null, "（回放结果 " + rid + "）"));
+  resultEl.append(chain);
+
+  // 信源卡 / 空态
+  const cards = el("div", "cards");
+  if (!r.clusters.length) {
+    const nr = el("div", "noresult");
+    nr.textContent = "没有找到任何过关的相关页面 —— 本次结论即「查无对证」。可尝试换个说法，或补充关键实体（谁、哪年、什么事）再查一次。";
+    cards.append(nr);
+  } else {
+    r.clusters.forEach((c, i) => {
+      const card = el("div", "card"); card.style.setProperty("--i", i);
+      const head = el("div", "chead");
+      head.append(el("span", "cnum", `独立信源 ${"一二三四五六七八九十"[i] ?? i + 1}`));
+      const dom = el("span", "cdom");
+      dom.append("主域 ");
+      const bd = el("b", null, c.domains[0] || "");
+      dom.append(bd);
+      if (c.domains.length > 1) dom.append(` 等 ${c.domains.length} 个域名`);
+      head.append(dom);
+      card.append(head);
+
+      const main = c.pages[0];
+      if (main) {
+        if (main.title) {
+          const a = el("a", "ctitle", main.title);
+          a.href = main.url; a.target = "_blank"; a.rel = "noopener nofollow";
+          card.append(a);
+        }
+        if (main.excerpt && main.excerpt !== "(无直接相关句子)")
+          card.append(el("div", "cex", "「" + main.excerpt + "」"));
+      }
+      if (c.pages.length > 1) {
+        const cp = el("div", "ccopy");
+        cp.append(`该源含 ${c.pages.length} 个页面，内容高度相似（互为转载）：`);
+        cp.append(el("b", null, c.pages.slice(1).map((p) => p.domain).join("、")));
+        card.append(cp);
+      }
+      cards.append(card);
+    });
+  }
+  resultEl.append(cards);
+
+  // 透明度报告
+  const det = el("details", "report");
+  const sum = el("summary", null, "透明度报告 —— 每一页的去向都可查");
+  det.append(sum);
+  const inner = el("div", "inner");
+  const group = (title, rows, tag, tagCls) => {
+    if (!rows.length) return;
+    inner.append(el("div", "rgroup", title));
+    rows.slice(0, 30).forEach((x) => {
+      const d = el("div", "rrow");
+      d.append(el("span", tagCls ? "tag " + tagCls : "tag", tag + " "));
+      d.append(document.createTextNode(x));
+      inner.append(d);
+    });
+    if (rows.length > 30) inner.append(el("div", "rrow", `……其余 ${rows.length - 30} 条略`));
+  };
+  group("被判定不相关（未计入信源）",
+    r.offtopic.map((o) => `${o.title || ""} [cov=${o.cov}${o.sentTri != null ? " tri=" + o.sentTri : ""}] ${o.reason || ""} — ${o.url.slice(0, 90)}`),
+    "[滤]");
+  group("抓取失败（无法验证内容）",
+    r.notFetched.map((o) => `${o.title || ""} — ${o.reason || ""} — ${o.url.slice(0, 90)}`),
+    "[败]");
+  group("跳过的链接", r.skippedUrls.map((o) => `${o.title || ""} — ${o.reason || ""}`), "[跳]");
+  const okEng = (r.engines || []).filter((e) => e.ok);
+  if (okEng.length) group("参与的搜索引擎",
+    okEng.map((e) => `${e.name} · ${e.count} 条 · ${e.ms}ms`), "[擎]", "ok");
+  det.append(inner);
+  resultEl.append(det);
+
+  // 再查
+  const again = el("div", "again");
+  const b2 = el("button", "linkbtn", "换一条再查");
+  b2.type = "button";
+  b2.addEventListener("click", () => { input.value = ""; input.focus(); resultEl.classList.remove("on"); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  const b3 = el("button", "linkbtn", "忽略缓存，强制重查");
+  b3.type = "button";
+  b3.addEventListener("click", () => submit(input.value.trim(), true));
+  again.append(b2, b3);
+  resultEl.append(again);
+
+  resultEl.classList.add("on");
+}
+
+// ---------- 提交 ----------
+async function submit(claim, fresh) {
+  if (checking) return;
+  claim = (claim || "").trim();
+  if (claim.length < 4) { showError("请输入至少 4 个字的一句话。"); return; }
+  if (claim.length > 200) { showError("一句话最长 200 字。"); return; }
+  checking = true;
+  btn.disabled = true; input.disabled = true;
+  resultEl.classList.remove("on");
+  errorEl.classList.remove("on");
+  startProgress();
+  try {
+    const res = await fetch(API + "/api/check?claim=" + encodeURIComponent(claim) + (fresh ? "&fresh=1" : ""));
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `服务返回 ${res.status}`);
+    stopProgress(true);
+    render(data);
+  } catch (e) {
+    stopProgress(false);
+    showError(e.message || "网络出错，请重试。");
+  } finally {
+    checking = false;
+    btn.disabled = false; input.disabled = false;
+  }
+}
+function showError(msg) { errorEl.textContent = "⚠ " + msg; errorEl.classList.add("on"); }
+
+form.addEventListener("submit", (e) => { e.preventDefault(); submit(input.value); });
+
+// 后端端点设置（静态托管时指向 Render/Fly 等容器后端）
+const apiInput = $("#apiInput");
+apiInput.value = localStorage.getItem("guzheng_api") || "";
+$("#apiSave").addEventListener("click", () => {
+  const v = apiInput.value.trim().replace(/\/$/, "");
+  if (v) localStorage.setItem("guzheng_api", v); else localStorage.removeItem("guzheng_api");
+  const u = new URL(location.href); u.searchParams.delete("api");
+  location.href = u.toString();
+});
+})();
+</script>
+</body>
+</html>

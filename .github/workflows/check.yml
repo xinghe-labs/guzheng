@@ -1,0 +1,63 @@
+name: check-claim
+# 「孤证」GitHub Actions 异步检查：免费后端
+# 手动触发（Actions 页 → check-claim → Run workflow → 输入一句话），
+# 结果写入 results/<sha1前10位>.json 并随 GitHub Pages 发布；
+# 前端用 https://<pages地址>/?result=<id> 查看结果。
+on:
+  workflow_dispatch:
+    inputs:
+      claim:
+        description: "要核查的一句话（4–200 字）"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: check-claim
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 安装依赖
+        run: npm install --no-audit --no-fund
+
+      - name: 运行数源检查
+        id: check
+        env:
+          CLAIM: ${{ inputs.claim }}
+          GUZHENG_CACHE: /tmp/guzheng-cache
+        run: |
+          set -e
+          if [ ${#CLAIM} -lt 4 ] || [ ${#CLAIM} -gt 200 ]; then
+            echo "claim 长度需在 4–200 字符之间" >&2; exit 1
+          fi
+          RID=$(node -e "console.log(require('crypto').createHash('sha1').update(process.env.CLAIM).digest('hex').slice(0,10))")
+          echo "rid=$RID" >> "$GITHUB_OUTPUT"
+          node lib/count.mjs "$CLAIM" --json > "results/$RID.json"
+          echo "结果 ID: $RID" >> "$GITHUB_STEP_SUMMARY"
+          echo " claim: $CLAIM" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 写入结果并发布
+        env:
+          RID: ${{ steps.check.outputs.rid }}
+          CLAIM: ${{ inputs.claim }}
+        run: |
+          set -e
+          git config user.name "guzheng-bot"
+          git config user.email "bot@users.noreply.github.com"
+          # 结果索引（前端结果页可选读）
+          printf '{"id":"%s","claim":%s,"ts":%s}\n' "$RID" "$(node -e "console.log(JSON.stringify(process.env.CLAIM))")" "$(date +%s%3N)" >> results/index.jsonl
+          git add results/
+          git commit -m "check[$RID]: $CLAIM" || echo "no changes"
+          git push

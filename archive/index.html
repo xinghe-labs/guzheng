@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>孤证 · 结论卡原型 v2</title>
+<style>
+  :root{
+    --paper:#F7F4EF; --card:#FFFFFF; --line:#E8E2D8;
+    --ink:#1C1A17; --muted:#6B655C; --faint:#9C968C;
+    --amber:#B4741F; --green:#2F6B4F; --slate:#4A5A72; --gray:#8A857C;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,sans-serif;
+    font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+    padding:0 0 64px;
+  }
+  .serif{font-family:"Songti SC","Noto Serif CJK SC","Source Han Serif SC",SimSun,serif}
+  .wrap{max-width:420px;margin:0 auto;padding:0 18px}
+
+  header{padding:34px 0 22px}
+  .logo{display:flex;align-items:baseline;gap:9px}
+  .logo h1{margin:0;font-size:25px;font-weight:600;letter-spacing:1px}
+  .logo span{font-size:11.5px;color:var(--faint);letter-spacing:.4px}
+  .tagline{margin:12px 0 0;font-size:13.5px;color:var(--muted);line-height:1.65}
+  .tagline b{color:var(--ink);font-weight:600}
+
+  .ask{margin:20px 0 30px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 15px}
+  .ask .ph{color:var(--faint);font-size:14.5px}
+  .ask .row{display:flex;align-items:center;gap:10px;margin-top:14px}
+  .ask input{flex:1;border:0;outline:0;font:inherit;font-size:14.5px;background:transparent;color:var(--ink);padding:0}
+  .btn{background:var(--ink);color:#fff;border:0;border-radius:8px;padding:9px 16px;font:inherit;font-size:14px;font-weight:500;cursor:pointer}
+  .btn:active{opacity:.8}
+
+  .slabel{font-size:11px;letter-spacing:1.6px;color:var(--faint);margin:0 0 12px;padding-left:2px}
+  .slabel em{font-style:normal;letter-spacing:0;margin-left:6px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 20px 16px;margin:0 0 18px}
+
+  /* claim 在最上面：先让人知道查的是什么 */
+  .claim{font-size:17px;line-height:1.6;margin:0;letter-spacing:.2px}
+  .claim:before{content:"「"}
+  .claim:after{content:"」"}
+
+  /* 结论：小字铺垫数量，大字给落差 */
+  .verdict{margin:16px 0 0}
+  .lead{font-size:13.5px;color:var(--muted);line-height:1.5}
+  .lead b{color:var(--ink);font-weight:600}
+  .main{font-size:23px;font-weight:600;line-height:1.35;letter-spacing:.2px;margin-top:3px}
+  .main em{font-style:normal;font-size:34px;letter-spacing:-1px;margin-right:3px;vertical-align:-2px}
+  .v-single .main,.v-single .main em{color:var(--amber)}
+  .v-multi  .main,.v-multi  .main em{color:var(--green)}
+  .v-clash  .main,.v-clash  .main em{color:var(--slate)}
+  .v-none   .main,.v-none   .main em{color:var(--gray)}
+
+  .dots{display:flex;align-items:center;gap:13px;margin:16px 0 0;min-height:22px;flex-wrap:wrap}
+  .cluster{display:flex;align-items:center}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .dot.stack{margin-left:-5px;opacity:.40}
+  .dot.stack:first-child{margin-left:0;opacity:.9}
+  .dot.solo{opacity:.95}
+  .dot.solo + .dot.solo{margin-left:6px}
+  .d-single .dot{background:var(--amber)}
+  .d-multi  .dot{background:var(--green)}
+  .d-clash  .dot{background:var(--slate)}
+  .d-none   .dot{background:var(--gray)}
+  .bracket{font-size:11.5px;color:var(--faint);line-height:1.4}
+  .bracket b{color:var(--muted);font-weight:600}
+  .sep{width:1px;height:14px;background:var(--line)}
+
+  .explain{margin:14px 0 0;font-size:13.5px;color:var(--muted);line-height:1.7}
+  .explain b{color:var(--ink);font-weight:600}
+
+  details{border-top:1px solid var(--line);margin-top:16px;padding-top:2px}
+  details summary{list-style:none;cursor:pointer;font-size:13px;color:var(--muted);padding:11px 0 9px;display:flex;align-items:center;gap:7px;user-select:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary:before{content:"▸";font-size:10px;color:var(--faint);transition:transform .15s}
+  details[open] summary:before{transform:rotate(90deg)}
+  .src{display:flex;gap:10px;padding:9px 0;border-top:1px solid #F2EEE7;font-size:12.5px;line-height:1.6}
+  .src .dom{color:var(--ink);font-weight:500;min-width:104px;word-break:break-all}
+  .src .say{color:var(--muted);flex:1}
+  .src .tag{font-size:10.5px;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:0 5px;height:17px;line-height:16px;flex:none;align-self:flex-start;margin-top:2px}
+  .src.dup .dom{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--faint)}
+  .note{font-size:12px;color:var(--faint);padding:10px 0 2px;border-top:1px solid #F2EEE7;line-height:1.65}
+  .note b{color:var(--muted)}
+
+  .core{margin:34px 0 0;padding:20px;border:1px dashed var(--line);border-radius:12px;background:#FCFAF6}
+  .core h2{margin:0 0 10px;font-size:14px;font-weight:600;letter-spacing:.3px}
+  .core p{margin:0 0 9px;font-size:13px;color:var(--muted);line-height:1.75}
+  .core p:last-child{margin-bottom:0}
+  .core b{color:var(--ink)}
+  .disclaimer{margin:22px 0 0;font-size:11.5px;color:var(--faint);line-height:1.7;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo"><h1>孤证</h1><span>结论卡原型 v2 · 假数据</span></div>
+    <p class="tagline">帮你数清楚，这件事<b>到底有几个不同的来源</b>在说。<br>不判断真假，只统计来源。</p>
+  </header>
+
+  <div class="ask">
+    <div class="ph">粘贴一句话，或一个链接</div>
+    <div class="row">
+      <input value="喝柠檬水能防癌" aria-label="输入待查内容">
+      <button class="btn">查</button>
+    </div>
+  </div>
+
+  <p class="slabel">四档结论 <em>原型对比，实际只显示一张</em></p>
+
+  <!-- ───── A. 单源 ───── -->
+  <div class="card">
+    <p class="claim serif">喝柠檬水能防癌</p>
+    <div class="verdict v-single">
+      <div class="lead">找到 <b>7 个页面</b>在说这件事</div>
+      <div class="main">其实是 <em>1</em> 个独立来源</div>
+    </div>
+    <div class="dots d-single">
+      <div class="cluster">
+        <i class="dot stack"></i><i class="dot stack"></i><i class="dot stack"></i>
+        <i class="dot stack"></i><i class="dot stack"></i><i class="dot stack"></i>
+      </div>
+      <span class="bracket"><b>6 个</b>同一篇转载</span>
+      <span class="sep"></span>
+      <i class="dot solo"></i>
+      <span class="bracket"><b>1 个</b>独立</span>
+    </div>
+    <p class="explain">这 6 个页面正文相似度 <b>96%</b>，发布时间集中在 <b>3 小时内</b>，都没有标注原始出处。</p>
+
+    <details>
+      <summary>查看这 7 个页面</summary>
+      <div class="src"><span class="dom">jiankang-1.com</span><span class="say">原文：柠檬水能防癌</span><span class="tag">原文</span></div>
+      <div class="src dup"><span class="dom">yj-2.net</span><span class="say">全文转载，未标出处</span><span class="tag">转载</span></div>
+      <div class="src dup"><span class="dom">meishi-3.cn</span><span class="say">全文转载</span><span class="tag">转载</span></div>
+      <div class="src dup"><span class="dom">baike-4.com</span><span class="say">全文转载</span><span class="tag">转载</span></div>
+      <div class="src dup"><span class="dom">toutiao-5.cc</span><span class="say">全文转载</span><span class="tag">转载</span></div>
+      <div class="src dup"><span class="dom">zj-6.info</span><span class="say">全文转载</span><span class="tag">转载</span></div>
+      <div class="src dup"><span class="dom">ys-7.com</span><span class="say">全文转载</span><span class="tag">转载</span></div>
+    </details>
+
+    <details>
+      <summary>为什么这么判</summary>
+      <div class="note">
+        判定「同一来源」的依据：正文 5-gram 相似度 &gt; 90%、发布时间集中、无独立数据或采访。<br>
+        这不等于「假」，只是「目前只有一处说法」。如果你看到权威机构或论文提到它，欢迎补充。
+      </div>
+    </details>
+  </div>
+
+  <!-- ───── B. 多源 ───── -->
+  <div class="card">
+    <p class="claim serif">长期熬夜会增加心血管疾病风险</p>
+    <div class="verdict v-multi">
+      <div class="lead">找到 <b>9 个页面</b>在说这件事</div>
+      <div class="main">来自 <em>4</em> 个独立来源</div>
+    </div>
+    <div class="dots d-multi">
+      <i class="dot solo"></i><i class="dot solo"></i><i class="dot solo"></i><i class="dot solo"></i>
+      <span class="bracket"><b>4 个</b>互不相同的来源</span>
+    </div>
+    <p class="explain">其中 <b>2 个</b>引用了同一份队列研究，已合并计算。说法方向一致，没找到相反证据。</p>
+
+    <details>
+      <summary>查看这 9 个页面</summary>
+      <div class="src"><span class="dom">who.int</span><span class="say">相关风险因素说明</span><span class="tag">支持</span></div>
+      <div class="src"><span class="dom">pubmed.ncbi.nlm.nih.gov</span><span class="say">队列研究原文</span><span class="tag">支持</span></div>
+      <div class="src"><span class="dom">dxy.com</span><span class="say">引用上述研究</span><span class="tag">引用</span></div>
+      <div class="src"><span class="dom">msdmanuals.cn</span><span class="say">独立撰写的科普条目</span><span class="tag">支持</span></div>
+    </details>
+
+    <details>
+      <summary>为什么这么判</summary>
+      <div class="note">
+        4 个来源中 2 个引用同一份研究，按「独立证据」计为 3 条，其中 1 条为独立撰写。<br>
+        算法只统计来源分布，不评价研究质量。
+      </div>
+    </details>
+  </div>
+
+  <!-- ───── C. 冲突 ───── -->
+  <div class="card">
+    <p class="claim serif">每个人每天都必须喝满 8 杯水</p>
+    <div class="verdict v-clash">
+      <div class="lead">找到 <b>4 个来源</b>在说这件事</div>
+      <div class="main">分成 <em>2</em> 种相反说法</div>
+    </div>
+    <div class="dots d-clash">
+      <i class="dot solo"></i><i class="dot solo"></i>
+      <span class="bracket">说「必须」</span>
+      <span class="sep"></span>
+      <i class="dot solo"></i><i class="dot solo"></i>
+      <span class="bracket">说「不必」</span>
+    </div>
+    <p class="explain">两边各有 <b>2 个</b>独立来源，谁也不占多数。</p>
+
+    <details>
+      <summary>查看两种说法</summary>
+      <div class="src"><span class="dom">health-a.cn</span><span class="say">「每天 8 杯水是标准」</span><span class="tag">必须</span></div>
+      <div class="src"><span class="dom">care-b.com</span><span class="say">「少于 8 杯影响代谢」</span><span class="tag">必须</span></div>
+      <div class="src"><span class="dom">mayoclinic.org</span><span class="say">「需水量因人而异」</span><span class="tag">不必</span></div>
+      <div class="src"><span class="dom">nhs.uk</span><span class="say">「8 杯说法无科学依据」</span><span class="tag">不必</span></div>
+    </details>
+
+    <details>
+      <summary>为什么这么判</summary>
+      <div class="note">
+        算法只判断「不同来源的结论是否指向同一方向」，不裁决谁对。<br>
+        遇到这种结果，建议直接看两边原文。
+      </div>
+    </details>
+  </div>
+
+  <!-- ───── D. 查不到 ───── -->
+  <div class="card">
+    <p class="claim serif">某市将从 12 月起实行四天工作制</p>
+    <div class="verdict v-none">
+      <div class="lead">查了 <b>25 个引擎</b></div>
+      <div class="main"><em>0</em> 个可靠来源</div>
+    </div>
+    <div class="dots d-none">
+      <span class="bracket">没有找到任何独立来源在说这件事</span>
+    </div>
+    <p class="explain">找到 2 个页面，都<b>打不开</b>；也没有找到任何机构发布的相关文件。</p>
+
+    <details>
+      <summary>查看检索范围</summary>
+      <div class="src"><span class="dom">微博转述</span><span class="say">页面已删除，无法核实</span><span class="tag">抓不到</span></div>
+      <div class="src"><span class="dom">forum-x.cc</span><span class="say">仅有标题，无正文</span><span class="tag">抓不到</span></div>
+      <div class="note" style="margin-top:6px"><b>这不是「假」。</b>可能是消息太新、太小众，或只在私域传播。也可能是真的。</div>
+    </details>
+  </div>
+
+  <div class="core">
+    <h2>为什么没有「真 / 假」</h2>
+    <p><b>1. 技术上做不到。</b>算法能数清有几个独立来源，判不了内容真假。硬给一个「真」字，就是在骗人。</p>
+    <p><b>2. 「只有一个来源」本身就够用了。</b>你真正需要知道的，往往不是真假，而是「是不是全网都在说」——而这个可以准确回答。</p>
+    <p><b>3. 说「查不到」比猜一个答案更负责。</b>宁可让你知道没查到，也不给一个看起来很确定的错误结论。</p>
+  </div>
+
+  <p class="disclaimer">本工具只统计来源分布，不判断内容真伪。<br>不处理时政、疫情、医疗诊断、法律结论类内容。</p>
+
+</div>
+</body>
+</html>
