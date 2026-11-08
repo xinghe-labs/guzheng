@@ -347,7 +347,9 @@ const API = (QP.get("api") || localStorage.getItem("guzheng_api") || "").replace
 // ?result=<id> 回放模式：读取 results/<id>.json（GitHub Actions 异步检查的结果落盘）
 const rid = QP.get("result");
 if (rid) {
-  fetch((API || "") + "/results/" + encodeURIComponent(rid) + ".json")
+  // API 空时用相对路径（兼容 GH Pages 项目页 /子路径/ 部署）；配置了 API 则用绝对后端地址
+  const replayBase = API ? API.replace(/\/?$/, "/results/") : new URL("results/", location.href).href;
+  fetch(replayBase + encodeURIComponent(rid) + ".json")
     .then((r) => { if (!r.ok) throw new Error("找不到结果 " + rid + "（可能 Actions 还没跑完或 id 不对）"); return r.json(); })
     .then((d) => { render(d); resultEl.scrollIntoView({ behavior: "smooth" }); })
     .catch((e) => showError(e.message));
