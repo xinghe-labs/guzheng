@@ -39,6 +39,33 @@ GET /api/check?claim=<一句话>[&fresh=1]
 
 ## 部署（免费托管，只需提供域名）
 
+### 方案一：Render 一键部署（后端前端一体，约 3 分钟）
+
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/xinghe-labs/guzheng)
 
-一键 Render 部署；Cloudflare Pages / GitHub Pages + Actions 等更多方案见 [DEPLOY.md](DEPLOY.md)。
+点按钮 → 登录 Render → 选本仓库 → Apply，自动读 `render.yaml` 完成。免费档无需信用卡；
+绑定域名：Service → Settings → Custom Domains → 按提示加 CNAME。
+
+### 方案二：Cloudflare Pages（前端走全球 CDN，永不休眠）
+
+前端托管在 Cloudflare，重活交给上面 Render 的后端，两步接入：
+
+1. 注册 [dash.cloudflare.com](https://dash.cloudflare.com) → 左侧 **Workers & Pages** → **Create** → **Pages** 标签 → **Connect to Git** → 授权并选本仓库 → **Begin setup**。
+2. 构建配置：**Framework preset 选 None**，**Build command 留空**，**Build output directory 填 `/`**（纯静态，无构建）→ Save and Deploy。
+3. 一分钟后得到 `https://<项目名>.pages.dev`，页面已可访问。
+4. **连接后端**：打开站点 → 页脚「后端端点」→ 填 Render 后端地址（如 `https://guzheng-xxxx.onrender.com`）→ 保存。
+   分享链接也可直接带参数：`https://你的域名/?api=https://guzheng-xxxx.onrender.com`。
+5. **绑定域名**：Pages 项目 → **Custom domains** → Set up a custom domain → 输入你的域名。
+   域名 DNS 在 Cloudflare 托管时 CNAME 自动配好；不在 CF 就去你的 DNS 服务商加一条
+   `<子域名> CNAME <项目名>.pages.dev`，回 CF 点刷新，证书自动签发。
+
+> 为什么不直接用 CF Workers 当后端：完整内核要抓约 12 个页面并做指纹聚类，超过 Workers 免费档
+> 10ms CPU 限制；所以 Cloudflare 承担前端 + CDN，后端交给 Render（或 Fly）。
+
+### 方案三：GitHub Pages + Actions（零第三方账号，异步回放）
+
+本仓库已开启：前端在 https://xinghe-labs.github.io/guzheng/ ，检查走 Actions（仓库 → Actions →
+check-claim → Run workflow），结果写入 `results/` 后用 `?result=<id>` 回放（线上实例：
+[?result=903c64933b](https://xinghe-labs.github.io/guzheng/?result=903c64933b)）。
+
+三方案的域名绑定、Fly.io / Docker 等更多细节见 [DEPLOY.md](DEPLOY.md)。
