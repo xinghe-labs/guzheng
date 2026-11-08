@@ -14,7 +14,7 @@
 | 按钮 | 平台 | 说明 |
 |---|---|---|
 | [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/xinghe-labs/guzheng) | Cloudflare Workers | 前端+后端一体，免费无需信用卡；完成后得到 `*.workers.dev` 域名，再在 Dashboard 绑自定义域名 |
-| [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/xinghe-labs/guzheng) | Render | 完整 Node 后端，免费；免费档 15 分钟无访问休眠，首访呻醒 ~30s |
+| [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/xinghe-labs/guzheng) | Render | 完整 Node 后端，免费；免费档 15 分钟无访问休眠，首访唤醒约 30 秒 |
 
 > Cloudflare 按钮首次点击会要求把仓库 Fork/连接到你的 CF 账号（部署所需），后续更新需在 CF Dashboard 里重新触发，或本地 `npx wrangler deploy`。自定义域名绑定步骤见 [DEPLOY.md](DEPLOY.md) 对应小节。
 
