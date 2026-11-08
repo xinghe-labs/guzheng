@@ -7,6 +7,17 @@
 - 结论只回答「几个源头」，不判断真假
 - 内核基于开源项目 [easy-websearch](https://github.com/xinghe-labs/easy-websearch)（Node 版直接复用其引擎；Cloudflare Workers 版为纯 fetch 同源移植，搜索/抓取/门过滤/聚类全部在边缘运行时完成）
 
+## 网页一键部署（不用命令行）
+
+点下面的按钮 → 登录/授权 → 自动拉取本仓库并部署，全程浏览器完成：
+
+| 按钮 | 平台 | 说明 |
+|---|---|---|
+| [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/xinghe-labs/guzheng) | Cloudflare Workers | 前端+后端一体，免费无需信用卡；完成后得到 `*.workers.dev` 域名，再在 Dashboard 绑自定义域名 |
+| [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/xinghe-labs/guzheng) | Render | 完整 Node 后端，免费；免费档 15 分钟无访问休眠，首访呻醒 ~30s |
+
+> Cloudflare 按钮首次点击会要求把仓库 Fork/连接到你的 CF 账号（部署所需），后续更新需在 CF Dashboard 里重新触发，或本地 `npx wrangler deploy`。自定义域名绑定步骤见 [DEPLOY.md](DEPLOY.md) 对应小节。
+
 ## 本地运行
 
 ```bash
