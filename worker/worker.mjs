@@ -1,6 +1,6 @@
 // 「孤证」Cloudflare Workers 入口：/api/check 同步接口 + /results/<id> 内存回放 + 静态 assets。
 // 核心逻辑复用 lib/core.mjs（与 Node 版同源）；搜索/抓取用 worker/ 纯 fetch 实现。
-import { countFromSources, normUrl } from "../lib/core.mjs";
+import { countFromSources, normUrl, GATE_V } from "../lib/core.mjs";
 import { searchAll } from "./search.mjs";
 import { fetchPage } from "./fetcher.mjs";
 
@@ -31,6 +31,9 @@ function cacheGet(map, key) {
   const e = map.get(key);
   if (!e) return null;
   if (Date.now() - e.ts > TTL_MS) { map.delete(key); return null; }
+  // 门版本变更（部署新代码）后旧缓存直接失效——旧结果里没有新字段（如 evidenceLevels），
+  // 也不会被新门逻辑认可
+  if (e.data.gate !== GATE_V) { map.delete(key); return null; }
   return e.data;
 }
 function cachePut(map, key, data) {
@@ -54,6 +57,7 @@ async function check(req, url) {
 
   if (inflight >= MAX_INFLIGHT) return json(req, 429, { error: "当前检查并发已满（同时最多 2 个），请稍后重试" });
   inflight++;
+  let jinaLeft = 6; // 每次调用的 jina 子请求配额：直连失败页优先用，用完靠 snippet 兑底
   try {
     const data = await countFromSources(claim, {
       top: 12,
@@ -63,13 +67,13 @@ async function check(req, url) {
         const key = normUrl(u);
         const ph = cacheGet(pages, key);
         if (ph) return { ...ph, cached: true };
-        const d = await fetchPage(u);
+        const d = await fetchPage(u, { allowJina: jinaLeft-- > 0 });
         if (d.ok) cachePut(pages, key, d);
         return d;
       },
     });
-    cachePut(claims, rid, data);
-    return json(req, 200, { ...data, rid });
+    cachePut(claims, rid, { ...data, gate: GATE_V });
+    return json(req, 200, { ...data, gate: GATE_V, rid });
   } finally {
     inflight--;
   }

@@ -74,10 +74,13 @@ async function jinaFetch(url) {
   return { ok: true, url, title: titleM?.[1]?.trim(), content: text.slice(0, MAX_CHARS) };
 }
 
-export async function fetchPage(url) {
+export async function fetchPage(url, { allowJina = true } = {}) {
   try {
     return await directFetch(url);
   } catch (e1) {
+    // jina 是子请求大户（redirect follow 每跳都计入 50/调用限额）——配额用完直接放弃，
+    // 抓不到由 snippet 兜底门接住，不拖崩整次调用的抓取预算
+    if (!allowJina) return { ok: false, url, error: `direct(${e1.message})（jina 配额已用完）` };
     try {
       return await jinaFetch(url);
     } catch (e2) {
