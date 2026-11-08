@@ -240,7 +240,16 @@ details.apiset button:hover{background:var(--seal); color:#fff}
 .df{opacity:.55; font-size:11.5px; letter-spacing:.08em}
 .df:hover{opacity:1}
 
-/* ---------- 响应式 ---------- */
+/* ---------- 响应式（全端适配） ---------- */
+/* 大桌面 ≥1400：主栏稍宽，留白更舒展 */
+@media (min-width:1400px){
+  main{max-width:940px; padding:0 56px 70px}
+}
+/* 中桌面 / 平板横屏 901–1199：压缩左右留白 */
+@media (max-width:1199px){
+  main{padding:0 32px 56px}
+}
+/* 平板竖屏 / 大屏手机 ≤900：侧栏转顶栏 */
 @media (max-width:900px){
   .rail{position:static; width:auto; flex-direction:row; border-right:0; border-bottom:1px solid var(--line); padding:14px 20px; gap:16px}
   .rail .brand{writing-mode:horizontal-tb; font-size:26px; letter-spacing:.2em}
@@ -250,6 +259,85 @@ details.apiset button:hover{background:var(--seal); color:#fff}
   .verdictbox{flex-direction:column; text-align:center; gap:18px}
   .vtext .vcave{text-align:left}
   .trio{grid-template-columns:1fr}
+  /* apibox 防溢出：锚定视口右缘 */
+  details.apiset .apibox{position:fixed; right:12px; bottom:12px; width:min(320px,calc(100vw - 24px))}
+}
+/* 手机 ≤640：紧凑排版 + iOS 防输入聚焦自动缩放（字号>16px） */
+@media (max-width:640px){
+  .rail{padding:12px 16px; gap:12px}
+  .rail .brand{font-size:21px}
+  .rail .seal{width:28px; height:28px; font-size:15px; border-radius:7px}
+  main{padding:0 16px 44px}
+  .top{padding-top:18px}
+  .kicker{font-size:12px; letter-spacing:.25em; margin:24px 0 10px}
+  .kicker::before{width:22px}
+  h1{font-size:clamp(24px,7vw,30px); line-height:1.42}
+  h1 em{text-decoration-thickness:2.5px; text-underline-offset:6px}
+  .sub{font-size:15px; margin-top:14px}
+  form{margin-top:26px}
+  .inputrow{gap:10px; padding-bottom:9px}
+  #claim{font-size:17px}
+  button.go{font-size:15px; padding:11px 18px 12px; letter-spacing:.18em; text-indent:.18em}
+  .hint{font-size:12px}
+  .examples{gap:8px}
+  .examples span.lbl{width:100%; margin-bottom:-2px}
+  .verdictbox{padding:22px 16px; gap:20px}
+  .stamp{width:86px; height:86px; border-width:2.5px; border-radius:12px}
+  .stamp .zh{font-size:27px}
+  .stamp .en{font-size:9.5px; letter-spacing:.2em; text-indent:.2em}
+  .vtext .vtitle{font-size:21px}
+  .vtext .vdesc{font-size:14.5px}
+  .vtext .vcave{font-size:12.5px}
+  .chain{font-size:13px; line-height:1.7}
+  .chain b{font-size:14px}
+  .chain .sep{margin:0 8px}
+  .card{padding:16px 14px 14px}
+  .card .ctitle{font-size:16px}
+  .card .cex{font-size:14px; -webkit-line-clamp:3}
+  .noresult{padding:20px 14px; font-size:14px}
+  details.report summary{padding:12px 14px; font-size:13.5px}
+  .report .inner{padding:12px 14px 16px}
+  #method{margin-top:56px; padding-top:28px}
+  #method h2{font-size:19px}
+  .trio .t{padding:14px}
+  .trio .t .tz{font-size:17px}
+  .mblock{font-size:14px}
+  footer{margin-top:48px; flex-direction:column; align-items:flex-start; gap:10px}
+  #error{padding:12px 14px; font-size:14px}
+}
+/* 小手机 ≤380：进一步压缩 */
+@media (max-width:380px){
+  main{padding:0 12px 40px}
+  .rail{padding:10px 12px}
+  .rail .brand{font-size:18px}
+  .verdictbox{padding:18px 12px}
+  .stamp{width:74px; height:74px}
+  .stamp .zh{font-size:23px}
+  .chain .sep{margin:0 6px}
+}
+/* 手机横屏（高度不足）：压缩垂直呼吸 */
+@media (max-height:480px) and (orientation:landscape){
+  .rail{padding:8px 16px}
+  .top{padding-top:12px}
+  .kicker{margin:14px 0 8px}
+  h1{font-size:clamp(22px,5vw,28px)}
+  .sub{margin-top:10px}
+  form{margin-top:16px}
+  #progress,#result{margin-top:24px}
+  #method{display:none}
+  footer{margin-top:28px; padding-top:12px}
+}
+/* 触控设备：点击目标 ≥44px，去除悬停位移残留 */
+@media (pointer:coarse){
+  .chip{padding:9px 16px; font-size:14px}
+  button.go{padding:13px 26px 14px}
+  details.report summary{padding:16px 20px}
+  .linkbtn{padding:8px 2px}
+  details.apiset summary{padding:8px 0}
+}
+@media (hover:none){
+  .card:hover{transform:none; box-shadow:none}
+  .card:hover .ctitle{color:var(--ink)}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important; animation-delay:0ms!important; transition-duration:.01ms!important}
