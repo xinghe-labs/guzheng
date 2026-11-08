@@ -365,13 +365,14 @@ details.apiset button:hover{background:var(--seal); color:#fff}
     <form id="form" class="rise">
       <div class="inputrow">
         <input id="claim" type="text" maxlength="200" autocomplete="off" spellcheck="false"
-               placeholder="例：复旦大学2028年将整体迁往苏州办学" aria-label="要核查的说法">
+               placeholder="输入一句完整、可验证的话，如：复旦大学2028年将整体迁往苏州办学" aria-label="要核查的论断">
         <button class="go" id="goBtn" type="submit">数 源</button>
       </div>
       <div class="hint">
+        <span>要核查的是<strong>论断</strong>，不是话题：「XX大学2028年将搬迁」可以，「XX大学」不行</span>
         <span>一句话（4–200 字）· 全网检索约需 20–90 秒</span>
-        <span>结论只回答「几个源头」，不判断真假</span>
       </div>
+      <p id="topicTip" class="hint" style="display:none;color:#a05a2c">📌 这看起来是一个话题而不是一句完整的论断——补成完整句子（加上时间、事件）核查才有意义。已照常查询。</p>
       <div class="examples" id="examples">
         <span class="lbl">试试：</span>
         <button type="button" class="chip">喝柠檬水能防癌</button>
@@ -614,6 +615,11 @@ async function submit(claim, fresh) {
   claim = (claim || "").trim();
   if (claim.length < 4) { showError("请输入至少 4 个字的一句话。"); return; }
   if (claim.length > 200) { showError("一句话最长 200 字。"); return; }
+  // 论断引导：短且无断言谓词的输入多半是话题词（如「美国中期选举」），
+  // 温和提示但不阻断——照常查询，结果出来后自动收起
+  const topicTip = $("#topicTip");
+  const ASSERTIVE = /将|会|能|是|被|已|遭|获|判|宣布|证实|曝光|辟谣|去世|辞职|被捕|逮捕|发布|收购|并购|迁|更名|停产|开业|开园|增加|导致|引发|感染|预防|致癌|有效|无效|成立|破产|申请|举行|通过|爆发/;
+  topicTip.style.display = (claim.length <= 12 && !ASSERTIVE.test(claim)) ? "" : "none";
   checking = true;
   btn.disabled = true; input.disabled = true;
   resultEl.classList.remove("on");
@@ -624,6 +630,7 @@ async function submit(claim, fresh) {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `服务返回 ${res.status}`);
     stopProgress(true);
+    topicTip.style.display = "none";
     render(data);
   } catch (e) {
     stopProgress(false);

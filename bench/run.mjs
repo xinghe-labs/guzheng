@@ -35,6 +35,7 @@ for (let i = 0; i < claims.length; i++) {
     pass, sources: r.independentSources, relevant: r.relevant, fetched: r.fetchedOk,
     notFetched: r.notFetched.length, offtopic: r.offtopic.length,
     domains: r.clusters.flatMap((cl) => cl.domains).slice(0, 6),
+    engines: r.engines.filter((e) => e.ok).map((e) => e.name).join(","),
     secs: +(r.timings.totalMs / 1000).toFixed(1),
   });
 }
