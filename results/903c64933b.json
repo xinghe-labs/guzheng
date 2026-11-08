@@ -1,0 +1,266 @@
+{
+  "claim": "中国科学技术大学已实现梦的实时监测",
+  "verdict": "multi",
+  "independentSources": 4,
+  "totalResults": 12,
+  "fetchedOk": 7,
+  "relevant": 4,
+  "notFetched": [
+    {
+      "url": "https://www.xianjichina.com/special/detail_441374.html",
+      "title": "中科大人工智能地震监测系统试运行成功,最快1秒报出参数-贤集网",
+      "reason": "direct + firecrawl extraction failed; reader fallback HTTP 422 — the target site may have rejected the reader too (note: fetch targets HTML pages — read JSON/text endpoints directly)"
+    }
+  ],
+  "skippedUrls": [
+    {
+      "url": "https://haokan.baidu.com/v?pd=wisenatural&vid=9998243266287665943",
+      "title": "揭秘!中国科技大学测速实时精准到秒,科技,信息技术,好看视频",
+      "reason": "搜索引擎垂直页/DOI，不作为来源"
+    },
+    {
+      "url": "https://baike.baidu.com/item/%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD/106554",
+      "title": "中华人民共和国_百度百科",
+      "reason": "搜索引擎垂直页/DOI，不作为来源"
+    },
+    {
+      "url": "https://doi.org/10.3788/aos241099",
+      "title": "耗散孤子时域动力学的实时测量",
+      "reason": "搜索引擎垂直页/DOI，不作为来源"
+    },
+    {
+      "url": "https://doi.org/10.7498/aps.59.3930",
+      "title": "Experimental generation of Laguerre-Gaussian beam using angular diffraction of binary phase plate",
+      "reason": "搜索引擎垂直页/DOI，不作为来源"
+    }
+  ],
+  "offtopic": [
+    {
+      "url": "https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%9C%8B",
+      "title": "中國 - 维基百科，自由的百科全书",
+      "cov": 0.38,
+      "sentTri": 0.13,
+      "sentCov": 0.31,
+      "reason": "subject-missing(主语“中国科学技术”不在最佳句)"
+    },
+    {
+      "url": "https://zh.wikipedia.org/wiki/%E5%A4%A9%E5%AE%AB%E7%A9%BA%E9%97%B4%E7%AB%99",
+      "title": "天宫空间站",
+      "cov": 0.31,
+      "sentTri": 0.13,
+      "sentCov": 0.25,
+      "reason": "subject-missing(主语“中国科学技术”不在最佳句)"
+    },
+    {
+      "url": "https://juejin.cn/post/7212249660580020282",
+      "title": "通过腾讯云免费访问ChatGPT，跟科学上网说拜拜吧！",
+      "cov": 0.06,
+      "sentTri": 0,
+      "sentCov": 0.06,
+      "reason": "subject-missing(主语“中国科学技术”不在最佳句)"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "c1",
+      "independentSource": true,
+      "domains": [
+        "news.mydrivers.com"
+      ],
+      "pages": [
+        {
+          "url": "https://news.mydrivers.com/1/877/877070.htm",
+          "domain": "news.mydrivers.com",
+          "title": "突破100多年局限!中国科大实现非接触心电图实时监测：不用脱衣佩戴电极--快科技--科技改变未来",
+          "excerpt": "来自中国科学技术大学官网消息，该校吴曼青院士团队陈彦教授、孙启彬研究员等人 实现了基于毫米波雷达的非接触人体心电图实时监测 ，突破了百余年来心电图仅能通过接触式传感器获取的局限。中国科大实现非接触心电图实时监测：不用脱衣佩戴电极--快科技--科技改变未来中国科大实现非接触心电图实时监测：不用脱衣佩戴电极中国科大实现非接触心电图实时监测：不用脱衣佩戴电极--快科技--科技改变未来中国科大实现非接触心电图实时监测：不用脱衣佩戴电极该方法的监测结果还支持对临床心律紊乱诊断过程中的关键指标：R-R间隔的稳定监测，其百分之九十误差均在9毫秒以内，进一步验证了该方法的医学价值。",
+          "cov": 0.75,
+          "sentTri": 0.53,
+          "engines": [
+            "ddg",
+            "sogouweb"
+          ],
+          "cached": false
+        }
+      ],
+      "mergedBy": "single"
+    },
+    {
+      "id": "c2",
+      "independentSource": true,
+      "domains": [
+        "imaibj.cn"
+      ],
+      "pages": [
+        {
+          "url": "https://www.imaibj.cn/breakthrough/details/4b5de50c9a01612a90b95d417cabf50fd113b1a1fd3238f9c3cce0ccd3cc9d32",
+          "domain": "imaibj.cn",
+          "title": "中国科学技术大学开发并行加速电子顺磁共振谱学方法实现自由基动态实时监测 - 转果果科技突破",
+          "excerpt": "中国科学技术大学自旋磁共振实验室石发展、孔飞等人开发了基于金刚石量子传感的并行加速电子顺磁共振（ElectronParamagneticResonance, EPR）谱学方法，实现了自由基光化学反应动态过程的实时监测。# 中国科学技术大学开发并行加速电子顺磁共振谱学方法实现自由基动态实时监测 - 转果果科技突破> 中国科学技术大学开发并行加速电子顺磁共振谱学方法实现自由基动态实时监测中国科学技术大学开发并行加速电子顺磁共振谱学方法实现自由基动态实时监测 - 转果果科技突破# 中国科学技术大学开发并行加速电子顺磁共振谱学方法实现自由基动态实时监测",
+          "cov": 0.75,
+          "sentTri": 0.6,
+          "engines": [
+            "ddg"
+          ],
+          "cached": false
+        }
+      ],
+      "mergedBy": "single"
+    },
+    {
+      "id": "c3",
+      "independentSource": true,
+      "domains": [
+        "realtimetech.ustc.edu.cn"
+      ],
+      "pages": [
+        {
+          "url": "https://realtimetech.ustc.edu.cn/main.htm",
+          "domain": "realtimetech.ustc.edu.cn",
+          "title": "Ustc - 实时技术实验室",
+          "excerpt": "实时技术实验室 根植于坚实的高速电路设计、探测器前端电路设计和信号获取及处理技术，着重开展与实时信息系统相关的关键技术研究。",
+          "cov": 0.5,
+          "sentTri": 0.4,
+          "engines": [
+            "ddg"
+          ],
+          "cached": false
+        }
+      ],
+      "mergedBy": "single"
+    },
+    {
+      "id": "c4",
+      "independentSource": true,
+      "domains": [
+        "blog.csdn.net"
+      ],
+      "pages": [
+        {
+          "url": "https://blog.csdn.net/2503_91792547/article/details/156076310?ops_request_misc=elastic_search_misc&request_id=f80aec3bb63e4aca84dc3cf7290be033&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~ElasticSearch~search_v2-1-156076310-null-null.541^v3^pc_search_result_blog6&utm_term=%E4%B8%AD%E5%9B%BD%E7%A7%91%E5%AD%A6%E6%8A%80%E6%9C%AF%E5%A4%A7%E5%AD%A6%E5%B7%B2%E5%AE%9E%E7%8E%B0%E6%A2%A6%E7%9A%84%E5%AE%9E%E6%97%B6%E7%9B%91%E6%B5%8B",
+          "domain": "blog.csdn.net",
+          "title": "中国科学技术大学NSR重大突破：程序控温“精雕”硬碳闭孔，钠离子电池能量密度首破200 Wh/kg！",
+          "excerpt": "近日，中国科学技术大学余彦教授、杨海副研究员团队在**中国顶尖旗舰期刊《National Science Review》（NSR）**上发表里程碑式研究成果。Title: 中国科学技术大学NSR重大突破：程序控温“精雕”硬碳闭孔，钠离子电池能量密度首破200 Wh/kg！# 中国科学技术大学NSR重大突破：程序控温“精雕”硬碳闭孔，钠离子电池能量密度首破200 Wh/kg！为了厘清根源，研究者创新性地采用**原位小角X射线散射**进行实时监测（图5）。",
+          "cov": 0.69,
+          "sentTri": 0.4,
+          "engines": [
+            "csdn"
+          ],
+          "cached": false
+        }
+      ],
+      "mergedBy": "single"
+    }
+  ],
+  "pairSims": [],
+  "engines": [
+    {
+      "name": "ddg",
+      "ok": true,
+      "count": 10,
+      "ms": 597,
+      "error": ""
+    },
+    {
+      "name": "bing",
+      "ok": true,
+      "count": 10,
+      "ms": 179,
+      "error": ""
+    },
+    {
+      "name": "baidu",
+      "ok": false,
+      "count": 0,
+      "ms": 2430,
+      "error": "socket hang up"
+    },
+    {
+      "name": "sogouweb",
+      "ok": true,
+      "count": 5,
+      "ms": 3839,
+      "error": ""
+    },
+    {
+      "name": "so360",
+      "ok": true,
+      "count": 7,
+      "ms": 8319,
+      "error": ""
+    },
+    {
+      "name": "wikipedia",
+      "ok": true,
+      "count": 10,
+      "ms": 1033,
+      "error": ""
+    },
+    {
+      "name": "hn",
+      "ok": true,
+      "count": 0,
+      "ms": 977,
+      "error": ""
+    },
+    {
+      "name": "juejin",
+      "ok": true,
+      "count": 12,
+      "ms": 2642,
+      "error": ""
+    },
+    {
+      "name": "arxiv",
+      "ok": true,
+      "count": 0,
+      "ms": 2216,
+      "error": ""
+    },
+    {
+      "name": "mwmbl",
+      "ok": true,
+      "count": 0,
+      "ms": 1564,
+      "error": ""
+    },
+    {
+      "name": "csdn",
+      "ok": true,
+      "count": 12,
+      "ms": 4411,
+      "error": ""
+    },
+    {
+      "name": "openalex",
+      "ok": true,
+      "count": 10,
+      "ms": 2376,
+      "error": ""
+    },
+    {
+      "name": "crossref",
+      "ok": true,
+      "count": 10,
+      "ms": 4134,
+      "error": ""
+    },
+    {
+      "name": "pubmed",
+      "ok": true,
+      "count": 0,
+      "ms": 2272,
+      "error": ""
+    },
+    {
+      "name": "huggingface",
+      "ok": true,
+      "count": 0,
+      "ms": 2219,
+      "error": ""
+    }
+  ],
+  "timings": {
+    "searchMs": 8407,
+    "totalMs": 19368
+  }
+}
