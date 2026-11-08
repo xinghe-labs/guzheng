@@ -1,0 +1,17 @@
+node_modules
+bench
+archive
+lib
+server.mjs
+package.json
+package-lock.json
+Dockerfile
+fly.toml
+render.yaml
+.github
+results
+wrangler.jsonc
+.assetsignore
+.gitignore
+*.md
+!README.md

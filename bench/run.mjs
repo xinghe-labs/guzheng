@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 基准跑分：逐条跑 countSources，对比期望档位
 // 硬指标：hard claim（无 soft 标记）全对才算通过；soft 单独列出供人工复核
-import { countSources } from "../core/lib/count.mjs";
+import { countSources } from "../lib/count.mjs";
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";

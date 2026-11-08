@@ -5,7 +5,7 @@
 
 - 结论三档：**多源印证**（≥2 处独立源）/ **孤证**（仅 1 处）/ **查无对证**（0 处）
 - 结论只回答「几个源头」，不判断真假
-- 内核基于开源项目 [easy-websearch](https://github.com/xinghe-labs/easy-websearch)
+- 内核基于开源项目 [easy-websearch](https://github.com/xinghe-labs/easy-websearch)（Node 版直接复用其引擎；Cloudflare Workers 版为纯 fetch 同源移植，搜索/抓取/门过滤/聚类全部在边缘运行时完成）
 
 ## 本地运行
 

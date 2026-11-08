@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "easy-websearch": "^1.8.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.158.0"
   }
 }
