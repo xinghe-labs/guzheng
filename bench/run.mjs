@@ -8,7 +8,8 @@ import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const claims = JSON.parse(readFileSync(path.join(here, "claims.json"), "utf8"));
-const only = process.argv[2]; // 可传序号（如 "3"）或区间（如 "1-15"）只跑部分
+const flags = process.argv.slice(2);
+const only = flags.find((a) => !a.startsWith("--")); // 可传序号（如 "3"）或区间（如 "1-15"）只跑部分；--fresh 绕过 claim 缓存
 const inRange = (n) => {
   if (!only) return true;
   const m = only.match(/^(\d+)-(\d+)$/);
